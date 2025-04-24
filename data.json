@@ -1,0 +1,17 @@
+[
+  {
+    "name": "Corniche Classique",
+    "file": "corniche-classique.glb",
+    "description": "Élément architectural traditionnel avec moulures arrondies."
+  },
+  {
+    "name": "Rosace Baroque",
+    "file": "rosace-baroque.glb",
+    "description": "Rosace richement ornée dans le style baroque."
+  },
+  {
+    "name": "Frise Art Déco",
+    "file": "frise-art-deco.glb",
+    "description": "Frise murale au design géométrique inspirée de l’Art Déco."
+  }
+]

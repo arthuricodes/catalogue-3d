@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Catalogue 3D</title>
+  <style>
+    body { font-family: sans-serif; background: #f2f2f2; margin: 0; padding: 2rem; }
+    h1 { text-align: center; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
+      padding: 2rem;
+    }
+    .item {
+      background: white;
+      padding: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    .item a {
+      display: inline-block;
+      margin-top: 1rem;
+      text-decoration: none;
+      color: white;
+      background: #0070f3;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Catalogue 3D – Échantillons architecturaux</h1>
+  <div class="grid" id="catalogue"></div>
+  <script>
+    fetch('data.json')
+      .then(res => res.json())
+      .then(data => {
+        const container = document.getElementById('catalogue');
+        data.forEach(item => {
+          container.innerHTML += `
+            <div class="item">
+              <h3>${item.name}</h3>
+              <p>${item.description}</p>
+              <a href="viewer.html?model=${item.file}">Voir en 3D</a>
+            </div>`;
+        });
+      });
+  </script>
+</body>
+</html>
