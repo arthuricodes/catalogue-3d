@@ -1,7 +1,7 @@
 [
   {
     "name": "Fraise en staff",
-    "file": "models/fraise.glb",
+    "file": "fraise.glb",
     "description": "Élément architectural traditionnel avec moulures arrondies."
   },
   {
