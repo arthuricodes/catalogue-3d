@@ -11,13 +11,18 @@
   </style>
 </head>
 <body>
+  <!-- On ne spécifie pas directement le src ici, on l'ajoute dynamiquement dans le script -->
   <model-viewer id="viewer" alt="Modèle 3D" auto-rotate camera-controls shadow-intensity="1" exposure="1" ar></model-viewer>
   <a href="index.html">← Retour au catalogue</a>
+
   <script>
+    // On récupère le paramètre 'model' dans l'URL
     const params = new URLSearchParams(window.location.search);
-    const model = params.get('model');
+    const model = params.get('model');  // Récupère le nom du modèle à partir de l'URL
+
     if (model) {
-      document.getElementById('viewer').setAttribute('src', 'models/' + model);
+      // Dynamically set the src attribute for the model-viewer
+      document.getElementById('viewer').setAttribute('src', 'models/' + model);  // Exemple: 'models/fraise.glb'
     } else {
       document.body.innerHTML = "<p style='color:white;'>Aucun modèle sélectionné.</p>";
     }
