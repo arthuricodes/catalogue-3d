@@ -22,7 +22,7 @@
 
     if (model) {
       // Dynamically set the src attribute for the model-viewer
-      document.getElementById('viewer').setAttribute('src', 'models/');  // Exemple: 'models/fraise.glb'
+      document.getElementById('viewer').setAttribute('src', 'models/' + model);  // Exemple: 'models/fraise.glb'
     } else {
       document.body.innerHTML = "<p style='color:white;'>Aucun modèle sélectionné.</p>";
     }
