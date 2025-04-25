@@ -15,18 +15,12 @@
       height: 100vh;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       color: white;
+      position: relative;
     }
 
     model-viewer {
       width: 90vw;
       height: 80vh;
-    }
-
-    a {
-      color: #fff;
-      margin-top: 1rem;
-      text-decoration: underline;
-      font-size: 1rem;
     }
 
     #loadingMessage {
@@ -38,6 +32,23 @@
       color: white;
       z-index: 2;
       pointer-events: none;
+    }
+
+    .return-button {
+      margin-top: 1.5rem;
+      text-decoration: none;
+      background-color: #0070f3;
+      color: white;
+      padding: 0.6rem 1.2rem;
+      border-radius: 25px;
+      font-size: 1rem;
+      font-weight: 500;
+      transition: all 0.3s ease-in-out;
+    }
+
+    .return-button:hover {
+      background-color: #005bb5;
+      transform: scale(1.05);
     }
   </style>
 </head>
@@ -56,7 +67,7 @@
   >
   </model-viewer>
 
-  <a href="index.html">← Retour au catalogue</a>
+  <a href="index.html" class="return-button">← Retour au catalogue</a>
 
   <script>
     const params = new URLSearchParams(window.location.search);
@@ -67,7 +78,6 @@
     if (model) {
       viewer.setAttribute('src', 'models/' + model);
 
-      // Cacher le message de chargement une fois prêt
       viewer.addEventListener('load', () => {
         loadingMessage.style.display = 'none';
       });
@@ -77,6 +87,7 @@
   </script>
 </body>
 </html>
+
 
 
 
