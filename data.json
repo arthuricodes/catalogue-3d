@@ -16,7 +16,7 @@
     "file": "sdbain.glb",
     "preview": "sdbain-preview.jpg",
     "description": "Petits accéssoires de salle de bain test."
-  }
+  },
   {
     "name": "rosace test",
     "file": "rosace.glb",
@@ -24,3 +24,4 @@
     "description": "rosace test appli."
   }
 ]
+
