@@ -5,73 +5,79 @@
   <title>Visionneuse 3D</title>
   <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
   <style>
-    * {
-      box-sizing: border-box;
-    }
-
     body {
       margin: 0;
       background: #111;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
       height: 100vh;
-      overflow: hidden;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: white;
     }
 
     model-viewer {
-      width: 100vw;
-      height: 100vh;
-      background-color: #111;
+      width: 90vw;
+      height: 80vh;
     }
 
-    .back-button {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      z-index: 10;
-      background-color: rgba(255, 255, 255, 0.1);
+    a {
       color: #fff;
-      padding: 10px 18px;
-      border: 1px solid #444;
-      border-radius: 30px;
-      text-decoration: none;
-      font-weight: 500;
-      transition: all 0.2s ease-in-out;
-      backdrop-filter: blur(8px);
+      margin-top: 1rem;
+      text-decoration: underline;
+      font-size: 1rem;
     }
 
-    .back-button:hover {
-      background-color: rgba(255, 255, 255, 0.2);
-      border-color: #888;
-    }
-
-    .no-model {
-      color: white;
+    #loadingMessage {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
       font-size: 1.5rem;
+      font-weight: 500;
+      color: white;
+      z-index: 2;
+      pointer-events: none;
     }
   </style>
 </head>
 <body>
+  <div id="loadingMessage">Chargement du modèle...</div>
 
-  <model-viewer id="viewer" alt="Modèle 3D" auto-rotate camera-controls shadow-intensity="1" exposure="1" ar></model-viewer>
+  <model-viewer
+    id="viewer"
+    alt="Modèle 3D"
+    auto-rotate
+    camera-controls
+    shadow-intensity="1"
+    exposure="1"
+    ar
+    disable-zoom
+  >
+  </model-viewer>
 
-  <a href="index.html" class="back-button">← Retour au catalogue</a>
+  <a href="index.html">← Retour au catalogue</a>
 
   <script>
     const params = new URLSearchParams(window.location.search);
     const model = params.get('model');
-
     const viewer = document.getElementById('viewer');
+    const loadingMessage = document.getElementById('loadingMessage');
+
     if (model) {
       viewer.setAttribute('src', 'models/' + model);
+
+      // Cacher le message de chargement une fois prêt
+      viewer.addEventListener('load', () => {
+        loadingMessage.style.display = 'none';
+      });
     } else {
-      document.body.innerHTML = "<p class='no-model'>Aucun modèle sélectionné.</p>";
+      loadingMessage.innerText = "Aucun modèle sélectionné.";
     }
   </script>
 </body>
 </html>
+
 
 
 
