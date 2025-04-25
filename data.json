@@ -2,16 +2,19 @@
   {
     "name": "Fraise en staff",
     "file": "fraise.glb",
+    "preview": "fraise-preview.jpg",
     "description": "Élément architectural traditionnel avec moulures arrondies."
   },
   {
     "name": "Test victor",
     "file": "testhd.glb",
-    "description": "image 3D test victor"
+    "preview": "testvictor-preview.jpg",
+    "description": "Image 3D test victor"
   },
   {
     "name": "Frise Art Déco",
     "file": "frise-art-deco.glb",
+    "preview": "frise-art-deco-preview.jpg",
     "description": "Frise murale au design géométrique inspirée de l’Art Déco."
   }
 ]

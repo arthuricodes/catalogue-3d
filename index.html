@@ -30,6 +30,11 @@
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
       text-align: center;
     }
+    .item img {
+      max-width: 100%; /* Assure-toi que l'image ne dépasse pas la taille de l'élément */
+      height: auto;
+      border-radius: 8px;
+    }
     .item a {
       display: inline-block;
       margin-top: 1rem;
@@ -61,6 +66,7 @@
       items.forEach(item => {
         container.innerHTML += `
           <div class="item">
+            <img src="models/${item.preview}" alt="Aperçu de ${item.name}"> <!-- Affiche l'image de prévisualisation -->
             <h3>${item.name}</h3>
             <p>${item.description}</p>
             <a href="viewer.html?model=${item.file}">Voir en 3D</a>
