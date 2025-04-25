@@ -54,6 +54,22 @@
     <input type="text" id="searchInput" placeholder="Rechercher un échantillon..." />
   </div>
 
+  <!-- Formulaire d'upload d'échantillon -->
+  <div class="upload-form">
+    <h2>Ajouter un échantillon</h2>
+    <form id="uploadForm" enctype="multipart/form-data">
+      <label for="file">Sélectionner le fichier 3D (.glb) :</label>
+      <input type="file" id="file" name="file" required />
+      <label for="preview">Sélectionner l'image de prévisualisation :</label>
+      <input type="file" id="preview" name="preview" required />
+      <label for="name">Nom de l'échantillon :</label>
+      <input type="text" id="name" name="name" required />
+      <label for="description">Description de l'échantillon :</label>
+      <textarea id="description" name="description" required></textarea>
+      <button type="submit">Ajouter l'échantillon</button>
+    </form>
+  </div>
+
   <div class="grid" id="catalogue"></div>
 
   <script>
@@ -91,7 +107,28 @@
       );
       displayItems(filteredItems); // Affiche les éléments filtrés
     });
+
+    // Gestion du formulaire d'upload
+    document.getElementById('uploadForm').addEventListener('submit', function(event) {
+      event.preventDefault();
+
+      const formData = new FormData(this);
+
+      // Envoi des données vers le serveur
+      fetch('/upload', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.json())
+      .then(newItem => {
+        // Ajouter le nouvel échantillon à la liste des items
+        data.push(newItem);
+        displayItems(data);  // Re-affiche les items avec le nouvel échantillon
+      })
+      .catch(error => console.error('Erreur lors de l\'ajout de l\'échantillon:', error));
+    });
   </script>
 </body>
 </html>
+
 
