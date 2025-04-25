@@ -2,31 +2,98 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Visionneuse 3D</title>
+  <title>Visionneuse 3D | Del Boca</title>
   <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
   <style>
-    body { margin: 0; background: #111; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
-    model-viewer { width: 90vw; height: 80vh; }
-    a { color: #fff; margin-top: 1rem; text-decoration: underline; }
+    body {
+      margin: 0;
+      background: #0f0f0f;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    model-viewer {
+      width: 100vw;
+      height: 100vh;
+      background: linear-gradient(145deg, #1a1a1a, #0d0d0d);
+    }
+
+    .back-button {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      padding: 0.6rem 1rem;
+      border-radius: 30px;
+      text-decoration: none;
+      font-weight: bold;
+      transition: all 0.3s ease-in-out;
+      backdrop-filter: blur(5px);
+    }
+
+    .back-button:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    .loading {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: #fff;
+      font-size: 1.2rem;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.2; }
+      50% { opacity: 1; }
+      100% { opacity: 0.2; }
+    }
   </style>
 </head>
 <body>
-  <!-- Ne spécifie pas de 'src' statique ici ! -->
-  <model-viewer id="viewer" alt="Modèle 3D" auto-rotate camera-controls shadow-intensity="1" exposure="1" ar></model-viewer>
-  <a href="index.html">← Retour au catalogue</a>
+
+  <a href="index.html" class="back-button">← Retour au catalogue</a>
+
+  <div class="loading" id="loading">Chargement du modèle...</div>
+
+  <model-viewer 
+    id="viewer"
+    alt="Modèle 3D"
+    auto-rotate
+    camera-controls
+    shadow-intensity="1"
+    exposure="1.2"
+    interaction-prompt="when-focused"
+    disable-zoom="false"
+    touch-action="pan-y"
+  ></model-viewer>
 
   <script>
-    // On récupère le paramètre 'model' dans l'URL
     const params = new URLSearchParams(window.location.search);
-    const model = params.get('model');  // Ex: 'fraise.glb'
+    const model = params.get('model');
+    const viewer = document.getElementById('viewer');
+    const loading = document.getElementById('loading');
 
     if (model) {
-      // Vérifie et applique le bon chemin sans répéter 'models/'
-      document.getElementById('viewer').setAttribute('src', 'models/' + model);  // Par exemple: 'models/fraise.glb'
+      viewer.setAttribute('src', 'models/' + model);
+
+      // Une fois chargé, on cache le loader
+      viewer.addEventListener('load', () => {
+        loading.style.display = 'none';
+      });
     } else {
       document.body.innerHTML = "<p style='color:white;'>Aucun modèle sélectionné.</p>";
     }
   </script>
 </body>
 </html>
+
 
