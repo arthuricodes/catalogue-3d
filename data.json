@@ -12,9 +12,9 @@
     "description": "Image 3D test victor"
   },
   {
-    "name": "Frise Art Déco",
-    "file": "frise-art-deco.glb",
-    "preview": "frise-art-deco-preview.jpg",
-    "description": "Frise murale au design géométrique inspirée de l’Art Déco."
+    "name": "Accessoires salle de bain",
+    "file": "sdbain.glb",
+    "preview": "sdbain-preview.jpg",
+    "description": "Petits accéssoires de salle de bain test."
   }
 ]
