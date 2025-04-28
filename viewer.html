@@ -50,13 +50,13 @@
 
 <a href="index.html" class="return-button">← Retour au catalogue</a>
 
-<!-- Importer Three.js et les loaders -->
-<script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.158.0/examples/js/loaders/GLTFLoader.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.158.0/examples/js/loaders/OBJLoader.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.158.0/examples/js/controls/OrbitControls.js"></script>
+<!-- Utilisation de Three.js et des loaders en mode module -->
+<script type="module">
+  import * as THREE from 'https://unpkg.com/three@0.158.0/build/three.module.js';
+  import { OrbitControls } from 'https://unpkg.com/three@0.158.0/examples/jsm/controls/OrbitControls.js';
+  import { GLTFLoader } from 'https://unpkg.com/three@0.158.0/examples/jsm/loaders/GLTFLoader.js';
+  import { OBJLoader } from 'https://unpkg.com/three@0.158.0/examples/jsm/loaders/OBJLoader.js';
 
-<script>
   const params = new URLSearchParams(window.location.search);
   const modelFile = params.get('model');
   const viewer = document.getElementById('viewer');
@@ -66,7 +66,7 @@
     throw new Error("Aucun modèle sélectionné.");
   }
 
-  // Setup scene
+  // Setup de la scène
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0x111111);
 
@@ -77,34 +77,38 @@
   renderer.setSize(window.innerWidth, window.innerHeight);
   viewer.appendChild(renderer.domElement);
 
-  const controls = new THREE.OrbitControls(camera, renderer.domElement);
+  const controls = new OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
 
-  const light = new THREE.HemisphereLight(0xffffff, 0x444444);
+  const light = new THREE.HemisphereLight(0xffffff, 0x444444, 1);
   light.position.set(0, 20, 0);
   scene.add(light);
 
-  const directionalLight = new THREE.DirectionalLight(0xffffff);
+  const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
   directionalLight.position.set(0, 20, 10);
   scene.add(directionalLight);
 
-  // Detect extension
+  // Détection du type de fichier
   const extension = modelFile.split('.').pop().toLowerCase();
 
   if (extension === 'glb' || extension === 'gltf') {
-    const loader = new THREE.GLTFLoader();
+    const loader = new GLTFLoader();
     loader.load('models/' + modelFile, (gltf) => {
-      scene.add(gltf.scene);
+      const model = gltf.scene;
+      scene.add(model);
+      fitCameraToObject(camera, model, controls);
     }, undefined, (error) => {
       console.error(error);
-      alert("Erreur lors du chargement du modèle.");
+      alert("Erreur lors du chargement du modèle GLTF/GLB.");
     });
   } else if (extension === 'obj') {
-    const loader = new THREE.OBJLoader();
+    const loader = new OBJLoader();
     loader.load('models/' + modelFile, (obj) => {
       scene.add(obj);
+      fitCameraToObject(camera, obj, controls);
     }, undefined, (error) => {
       console.error(error);
-      alert("Erreur lors du chargement du modèle.");
+      alert("Erreur lors du chargement du modèle OBJ.");
     });
   } else {
     alert('Format de fichier non supporté : ' + extension);
@@ -123,10 +127,36 @@
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
   });
+
+  // Ajuster automatiquement la caméra autour du modèle chargé
+  function fitCameraToObject(camera, object, controls, offset = 1.25) {
+    const boundingBox = new THREE.Box3().setFromObject(object);
+
+    const center = boundingBox.getCenter(new THREE.Vector3());
+    const size = boundingBox.getSize(new THREE.Vector3());
+
+    const maxDim = Math.max(size.x, size.y, size.z);
+    const fov = camera.fov * (Math.PI / 180);
+    let cameraZ = Math.abs(maxDim / Math.sin(fov / 2)) * offset;
+
+    camera.position.z = cameraZ;
+
+    const minZ = boundingBox.min.z;
+    const cameraToFarEdge = (minZ < 0) ? -minZ + cameraZ : cameraZ - minZ;
+
+    camera.far = cameraToFarEdge * 3;
+    camera.updateProjectionMatrix();
+
+    if (controls) {
+      controls.target.copy(center);
+      controls.update();
+    }
+  }
 </script>
 
 </body>
 </html>
+
 
 
 
