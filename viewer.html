@@ -109,49 +109,27 @@
       return Math.sqrt(dx * dx + dy * dy + dz * dz);
     }
 
-    // Fonction pour convertir les clics en coordonnées 3D
-    function get3DPositionFromClick(event) {
-      const modelViewer = viewer.shadowRoot.querySelector('canvas');
-      const rect = modelViewer.getBoundingClientRect();
-      const mouseX = event.clientX - rect.left;
-      const mouseY = event.clientY - rect.top;
+    // Fonction de clic
+    viewer.addEventListener('click', (event) => {
+      const boundingRect = viewer.getBoundingClientRect();
+      const mouseX = (event.clientX - boundingRect.left) / boundingRect.width * 2 - 1;
+      const mouseY = -(event.clientY - boundingRect.top) / boundingRect.height * 2 + 1;
 
-      // Calculer les coordonnées normalisées
-      const normalizedX = (mouseX / window.innerWidth) * 2 - 1;
-      const normalizedY = -(mouseY / window.innerHeight) * 2 + 1;
-
-      // Créer un rayon à partir des coordonnées de la souris
-      const raycaster = new THREE.Raycaster();
-      const mouse = new THREE.Vector2(normalizedX, normalizedY);
-
-      raycaster.ray.origin.setFromMatrixPosition(viewer.camera.position);
-      raycaster.ray.direction.set(mouse.x, mouse.y, 0.5);  // Direction du rayon dans la scène
-
-      // Calculer les intersections avec la scène du modèle
-      const intersects = raycaster.intersectObject(viewer.scene);
+      // Raycasting dans l'espace 3D de model-viewer
+      const ray = viewer.cameraControls.getRayFromScreenCoordinates(mouseX, mouseY);
+      const intersects = viewer.scene.intersect(ray);
 
       if (intersects.length > 0) {
-        return intersects[0].point; // Retourner la position 3D de l'intersection
-      }
+        const point = intersects[0].point;
 
-      return null;  // Si aucune intersection, renvoie null
-    }
-
-    // Ajouter un gestionnaire de clic sur le modèle
-    viewer.addEventListener('click', (event) => {
-      const point = get3DPositionFromClick(event);
-
-      if (!point) return;
-
-      if (point1 === null) {
-        point1 = point;  // Enregistrer le premier point
-        distanceDisplay.innerText = 'Distance: 0 m'; // Réinitialiser la distance
-      } else if (point2 === null) {
-        point2 = point;  // Enregistrer le deuxième point
-
-        // Calculer et afficher la distance
-        const distance = calculateDistance(point1, point2);
-        distanceDisplay.innerText = 'Distance: ' + distance.toFixed(2) + ' m';
+        if (!point1) {
+          point1 = point;
+          distanceDisplay.innerText = 'Distance: 0 m'; // Réinitialiser la distance
+        } else if (!point2) {
+          point2 = point;
+          const distance = calculateDistance(point1, point2);
+          distanceDisplay.innerText = 'Distance: ' + distance.toFixed(2) + ' m';
+        }
       }
     });
 
@@ -169,6 +147,7 @@
   </script>
 </body>
 </html>
+
 
 
 
