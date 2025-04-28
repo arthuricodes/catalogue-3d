@@ -2,23 +2,37 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Visionneuse 3D avec Mesure de Distance</title>
+  <title>Visionneuse 3D</title>
+  <!-- Importation de model-viewer -->
+  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
   <style>
     body {
       margin: 0;
       background: #111;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      color: white;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       height: 100vh;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: white;
+      position: relative;
     }
 
-    canvas {
+    model-viewer {
       width: 90vw;
       height: 80vh;
+    }
+
+    #loadingMessage {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1.5rem;
+      font-weight: 500;
+      color: white;
+      z-index: 2;
+      pointer-events: none;
     }
 
     .return-button {
@@ -49,18 +63,44 @@
   </style>
 </head>
 <body>
-  <canvas id="canvas"></canvas>
+  <div id="loadingMessage">Chargement du modèle...</div>
+  <model-viewer
+    id="viewer"
+    alt="Modèle 3D"
+    auto-rotate
+    camera-controls
+    shadow-intensity="1"
+    exposure="1"
+    ar
+  >
+  </model-viewer>
+
   <div id="distanceDisplay">Distance: 0 m</div>
+
   <a href="index.html" class="return-button">← Retour au catalogue</a>
 
-  <!-- Trois.js -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/loaders/GLTFLoader.js"></script>
   <script>
-    let scene, camera, renderer, raycaster, mouse, model;
-    let point1 = null, point2 = null;
+    const params = new URLSearchParams(window.location.search);
+    const model = params.get('model');
+    const viewer = document.getElementById('viewer');
+    const loadingMessage = document.getElementById('loadingMessage');
+    const distanceDisplay = document.getElementById('distanceDisplay');
 
-    // Fonction pour calculer la distance entre deux points dans l'espace 3D
+    if (model) {
+      viewer.setAttribute('src', 'models/' + model);
+
+      viewer.addEventListener('load', () => {
+        loadingMessage.style.display = 'none';
+      });
+    } else {
+      loadingMessage.innerText = "Aucun modèle sélectionné.";
+    }
+
+    // Variables pour stocker les points de mesure
+    let point1 = null;
+    let point2 = null;
+
+    // Fonction pour calculer la distance entre deux points 3D
     function calculateDistance(p1, p2) {
       const dx = p2.x - p1.x;
       const dy = p2.y - p1.y;
@@ -68,78 +108,49 @@
       return Math.sqrt(dx * dx + dy * dy + dz * dz);
     }
 
-    // Initialisation de la scène Three.js
-    function init() {
-      scene = new THREE.Scene();
-      camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-      renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('canvas') });
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      document.body.appendChild(renderer.domElement);
+    // Fonction de clic sur le modèle
+    viewer.addEventListener('click', (event) => {
+      // Obtenir les coordonnées de l'écran du clic
+      const x = event.clientX;
+      const y = event.clientY;
 
-      // Raycaster et souris
-      raycaster = new THREE.Raycaster();
-      mouse = new THREE.Vector2();
+      // Utilisation de model-viewer pour obtenir la position 3D du point cliqué
+      const boundingRect = viewer.getBoundingClientRect();
+      const mouseX = (x - boundingRect.left) / boundingRect.width * 2 - 1;
+      const mouseY = -(y - boundingRect.top) / boundingRect.height * 2 + 1;
 
-      // Lumières
-      const light = new THREE.AmbientLight(0xffffff, 1);
-      scene.add(light);
+      // Utilisation de hitTest pour obtenir la position 3D
+      viewer.hitTest(mouseX, mouseY).then(hitResult => {
+        if (hitResult && hitResult.hit) {
+          const point = hitResult.point;
 
-      // Charger le modèle
-      const loader = new THREE.GLTFLoader();
-      loader.load('models/testhd.glb', function(gltf) {
-        model = gltf.scene;
-        scene.add(model);
-        camera.position.z = 5; // Positionner la caméra pour voir le modèle
-      });
-
-      // Gestion des clics
-      window.addEventListener('click', onClick, false);
-
-      // Animation de la scène
-      animate();
-    }
-
-    // Fonction de gestion des clics pour détecter l'interaction
-    function onClick(event) {
-      // Calculer les coordonnées de la souris dans l'espace de la fenêtre
-      mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-      mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
-      // Mettre à jour le raycaster
-      raycaster.updateMatrixWorld();
-      raycaster.setFromCamera(mouse, camera);
-
-      // Détecter les intersections avec le modèle
-      const intersects = raycaster.intersectObject(model, true);
-
-      if (intersects.length > 0) {
-        const point = intersects[0].point;
-
-        // Si c'est le premier point, on le stocke
-        if (!point1) {
-          point1 = point;
-          document.getElementById('distanceDisplay').innerText = 'Distance: 0 m'; // Réinitialiser
-        } 
-        // Si c'est le deuxième point, on le stocke et on calcule la distance
-        else if (!point2) {
-          point2 = point;
-          const distance = calculateDistance(point1, point2);
-          document.getElementById('distanceDisplay').innerText = 'Distance: ' + distance.toFixed(2) + ' m';
+          if (!point1) {
+            point1 = point;
+            distanceDisplay.innerText = 'Distance: 0 m'; // Réinitialiser la distance
+          } else if (!point2) {
+            point2 = point;
+            const distance = calculateDistance(point1, point2);
+            distanceDisplay.innerText = 'Distance: ' + distance.toFixed(2) + ' m';
+          }
         }
+      });
+    });
+
+    // Gestion du zoom avec la molette
+    let zoomLevel = 1;
+    viewer.addEventListener('wheel', (event) => {
+      event.preventDefault();
+      if (event.deltaY > 0) {
+        zoomLevel *= 1.1;
+      } else {
+        zoomLevel /= 1.1;
       }
-    }
-
-    // Fonction d'animation pour rendre la scène
-    function animate() {
-      requestAnimationFrame(animate);
-      renderer.render(scene, camera);
-    }
-
-    // Initialisation
-    init();
+      viewer.cameraOrbit = `auto auto ${zoomLevel}m`;
+    });
   </script>
 </body>
 </html>
+
 
 
 
