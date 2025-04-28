@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <title>Visionneuse 3D</title>
+  <!-- Importation de model-viewer et Three.js -->
   <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <style>
     body {
       margin: 0;
@@ -122,10 +124,14 @@
       mouse.x = (mouseX / window.innerWidth) * 2 - 1;
       mouse.y = -(mouseY / window.innerHeight) * 2 + 1;
 
-      raycaster.updateMatrixWorld();  // Mettre à jour la matrice du monde
-      raycaster.ray.origin.setFromMatrixPosition(viewer.camera.matrixWorld); // Définir l'origine du rayon
+      // Obtient la caméra et le modèle depuis le modèle viewer
+      const camera = viewer.camera;
+      const scene = viewer.scene;
 
-      const intersects = raycaster.intersectObject(viewer.model, true);
+      raycaster.updateMatrixWorld();  // Mettre à jour la matrice du monde
+      raycaster.ray.origin.setFromMatrixPosition(camera.matrixWorld); // Définir l'origine du rayon
+
+      const intersects = raycaster.intersectObject(scene, true);
 
       if (intersects.length > 0) {
         return intersects[0].point;  // Récupère le point d'intersection 3D
@@ -166,6 +172,7 @@
   </script>
 </body>
 </html>
+
 
 
 
