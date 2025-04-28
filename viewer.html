@@ -50,11 +50,19 @@
       background-color: #005bb5;
       transform: scale(1.05);
     }
+
+    #distanceDisplay {
+      position: absolute;
+      top: 10%;
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: yellow;
+      z-index: 2;
+    }
   </style>
 </head>
 <body>
   <div id="loadingMessage">Chargement du modèle...</div>
-
   <model-viewer
     id="viewer"
     alt="Modèle 3D"
@@ -66,6 +74,8 @@
   >
   </model-viewer>
 
+  <div id="distanceDisplay">Distance: 0 m</div>
+
   <a href="index.html" class="return-button">← Retour au catalogue</a>
 
   <script>
@@ -73,6 +83,7 @@
     const model = params.get('model');
     const viewer = document.getElementById('viewer');
     const loadingMessage = document.getElementById('loadingMessage');
+    const distanceDisplay = document.getElementById('distanceDisplay');
 
     if (model) {
       viewer.setAttribute('src', 'models/' + model);
@@ -84,25 +95,78 @@
       loadingMessage.innerText = "Aucun modèle sélectionné.";
     }
 
-    // Variable pour stocker le zoom actuel
-    let zoomLevel = 1;
+    // Variables pour stocker les points de mesure
+    let point1 = null;
+    let point2 = null;
 
-    // Ajout d'un gestionnaire d'événements pour le zoom avec la molette
-    viewer.addEventListener('wheel', (event) => {
-      event.preventDefault(); // Empêche la page de défiler
+    // Fonction pour calculer la distance entre deux points 3D
+    function calculateDistance(p1, p2) {
+      const dx = p2.x - p1.x;
+      const dy = p2.y - p1.y;
+      const dz = p2.z - p1.z;
+      return Math.sqrt(dx * dx + dy * dy + dz * dz);
+    }
 
-      if (event.deltaY > 0) {
-        zoomLevel *= 1.1; // Zoom out (diminuer la taille)
-      } else {
-        zoomLevel /= 1.1; // Zoom in (augmenter la taille)
+    // Fonction pour convertir les clics en coordonnées 3D en utilisant le raycasting
+    function get3DPositionFromClick(event) {
+      const modelViewer = viewer.shadowRoot.querySelector('canvas');
+      const rect = modelViewer.getBoundingClientRect();
+      const mouseX = event.clientX - rect.left;
+      const mouseY = event.clientY - rect.top;
+
+      // Utilisation du raycaster pour obtenir la position 3D
+      const raycaster = new THREE.Raycaster();
+      const mouse = new THREE.Vector2();
+
+      // Convertir les coordonnées de la souris en coordonnées normalisées (-1 à 1)
+      mouse.x = (mouseX / window.innerWidth) * 2 - 1;
+      mouse.y = -(mouseY / window.innerHeight) * 2 + 1;
+
+      raycaster.updateMatrixWorld();  // Mettre à jour la matrice du monde
+      raycaster.ray.origin.setFromMatrixPosition(viewer.camera.matrixWorld); // Définir l'origine du rayon
+
+      const intersects = raycaster.intersectObject(viewer.model, true);
+
+      if (intersects.length > 0) {
+        return intersects[0].point;  // Récupère le point d'intersection 3D
       }
 
-      // Met à jour la distance de la caméra en fonction du niveau de zoom
+      return null;  // Si aucune intersection, renvoie null
+    }
+
+    // Ajouter un gestionnaire de clic sur le modèle
+    viewer.addEventListener('click', (event) => {
+      const point = get3DPositionFromClick(event);
+
+      if (!point) return;
+
+      if (point1 === null) {
+        point1 = point;  // Enregistrer le premier point
+        distanceDisplay.innerText = 'Distance: 0 m'; // Réinitialiser la distance
+      } else if (point2 === null) {
+        point2 = point;  // Enregistrer le deuxième point
+
+        // Calculer et afficher la distance
+        const distance = calculateDistance(point1, point2);
+        distanceDisplay.innerText = 'Distance: ' + distance.toFixed(2) + ' m';
+      }
+    });
+
+    // Gestion du zoom avec la molette
+    let zoomLevel = 1;
+    viewer.addEventListener('wheel', (event) => {
+      event.preventDefault();
+      if (event.deltaY > 0) {
+        zoomLevel *= 1.1;
+      } else {
+        zoomLevel /= 1.1;
+      }
       viewer.cameraOrbit = `auto auto ${zoomLevel}m`;
     });
   </script>
 </body>
 </html>
+
 
 
 
