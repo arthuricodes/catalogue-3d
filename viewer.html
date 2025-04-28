@@ -50,12 +50,12 @@
 
 <a href="index.html" class="return-button">← Retour au catalogue</a>
 
-<!-- Utilisation de Three.js et des loaders en mode module -->
+<!-- Importation de Three.js et des loaders avec des chemins relatifs -->
 <script type="module">
-  import * as THREE from 'https://unpkg.com/three@0.158.0/build/three.module.js';
-  import { OrbitControls } from 'https://unpkg.com/three@0.158.0/examples/jsm/controls/OrbitControls.js';
-  import { GLTFLoader } from 'https://unpkg.com/three@0.158.0/examples/jsm/loaders/GLTFLoader.js';
-  import { OBJLoader } from 'https://unpkg.com/three@0.158.0/examples/jsm/loaders/OBJLoader.js';
+  import * as THREE from './node_modules/three/build/three.module.js';
+  import { OrbitControls } from './node_modules/three/examples/jsm/controls/OrbitControls.js';
+  import { GLTFLoader } from './node_modules/three/examples/jsm/loaders/GLTFLoader.js';
+  import { OBJLoader } from './node_modules/three/examples/jsm/loaders/OBJLoader.js';
 
   const params = new URLSearchParams(window.location.search);
   const modelFile = params.get('model');
@@ -156,6 +156,11 @@
 
 </body>
 </html>
+
+
+
+
+
 
 
 
