@@ -119,10 +119,8 @@
       const mouseX = (x - boundingRect.left) / boundingRect.width * 2 - 1;
       const mouseY = -(y - boundingRect.top) / boundingRect.height * 2 + 1;
 
-      viewer.getCameraOrbit().then((orbit) => {
-        const scene = viewer.scene;
-        const hitResult = viewer.hitTest(mouseX, mouseY);
-
+      // Utilisation de hitTest pour obtenir la position 3D
+      viewer.hitTest(mouseX, mouseY).then(hitResult => {
         if (hitResult && hitResult.hit) {
           const point = hitResult.point;
 
@@ -152,6 +150,7 @@
   </script>
 </body>
 </html>
+
 
 
 
