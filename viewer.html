@@ -109,32 +109,29 @@
       return Math.sqrt(dx * dx + dy * dy + dz * dz);
     }
 
-    // Fonction pour convertir les clics en coordonnées 3D en utilisant le raycasting
+    // Fonction pour convertir les clics en coordonnées 3D
     function get3DPositionFromClick(event) {
       const modelViewer = viewer.shadowRoot.querySelector('canvas');
       const rect = modelViewer.getBoundingClientRect();
       const mouseX = event.clientX - rect.left;
       const mouseY = event.clientY - rect.top;
 
-      // Utilisation du raycaster pour obtenir la position 3D
+      // Calculer les coordonnées normalisées
+      const normalizedX = (mouseX / window.innerWidth) * 2 - 1;
+      const normalizedY = -(mouseY / window.innerHeight) * 2 + 1;
+
+      // Créer un rayon à partir des coordonnées de la souris
       const raycaster = new THREE.Raycaster();
-      const mouse = new THREE.Vector2();
+      const mouse = new THREE.Vector2(normalizedX, normalizedY);
 
-      // Convertir les coordonnées de la souris en coordonnées normalisées (-1 à 1)
-      mouse.x = (mouseX / window.innerWidth) * 2 - 1;
-      mouse.y = -(mouseY / window.innerHeight) * 2 + 1;
+      raycaster.ray.origin.setFromMatrixPosition(viewer.camera.position);
+      raycaster.ray.direction.set(mouse.x, mouse.y, 0.5);  // Direction du rayon dans la scène
 
-      // Obtient la caméra et le modèle depuis le modèle viewer
-      const camera = viewer.camera;
-      const scene = viewer.scene;
-
-      raycaster.updateMatrixWorld();  // Mettre à jour la matrice du monde
-      raycaster.ray.origin.setFromMatrixPosition(camera.matrixWorld); // Définir l'origine du rayon
-
-      const intersects = raycaster.intersectObject(scene, true);
+      // Calculer les intersections avec la scène du modèle
+      const intersects = raycaster.intersectObject(viewer.scene);
 
       if (intersects.length > 0) {
-        return intersects[0].point;  // Récupère le point d'intersection 3D
+        return intersects[0].point; // Retourner la position 3D de l'intersection
       }
 
       return null;  // Si aucune intersection, renvoie null
@@ -172,6 +169,7 @@
   </script>
 </body>
 </html>
+
 
 
 
